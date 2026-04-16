@@ -1,5 +1,33 @@
 # Kötbér Kalkulátor 📱
 
+Egyszerű webes eszköz a 2 éves határozott idejű telekom szerződések idő előtti felmondási kötbérének kiszámításához.
+
+Mit tud?
+Adj meg néhány adatot, és azonnal megtudod, mennyi kötbért kellene fizetni idő előtti felmondás esetén:
+
+📅 Szerződéskötés dátuma + tervezett felmondás dátuma
+📦 Csomag típusa — Normál S vagy Korlátlan M
+🌐 Internet csomag kiválasztása
+💰 Hang és adat teljes (nem kedvezményes) díjai
+
+A kalkulátor részletes bontást és a fizetendő kötbér végösszegét mutatja.
+
+Használat
+Csak nyisd meg a linket — telepítés és bejelentkezés nélkül:
+👉 Kalkulátor megnyitása
+Asztali gépen és mobilon egyaránt működik.
+
+A kötbér számítása
+
+(Teljes díj − Kedvezményes díj) × Felhasznált hónapok száma
+
+Hang és adat esetén külön-külön számítva, majd összeadva.
+
+Egyszerű HTML, CSS és JavaScript — keretrendszer és külső függőség nélkül.
+
+
+# Kötbér Kalkulátor 📱
+
 A simple web-based tool to calculate **early termination penalties** for 2-year fixed telecom contracts.
 
 ---
