@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kötbér Kalkulátor</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --border: #2e2e2e;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #888;
+    --input-bg: #111;
+    --radius: 4px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 0.75rem;
+    margin-top: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  input[type="date"],
+  input[type="number"],
+  select {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  input[type="date"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    border-color: var(--accent);
+  }
+
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .select-wrapper {
+    position: relative;
+  }
+  .select-wrapper::after {
+    content: '▾';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    pointer-events: none;
+    font-size: 1rem;
+  }
+
+  .months-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    padding: 6px 18px;
+    border-radius: var(--radius);
+    margin-top: 8px;
+  }
+
+  .months-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+
+  .toggle-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .toggle-btn {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    padding: 14px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .toggle-btn:hover { border-color: var(--accent); color: var(--text); }
+  .toggle-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 700;
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+
+  .price-val {
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .result-card {
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .result-card.show { display: block; }
+
+  .result-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+
+  .result-line:last-of-type { border-bottom: none; }
+
+  .result-label { color: var(--muted); letter-spacing: 1px; text-transform: uppercase; font-size: 0.68rem; }
+  .result-value { color: var(--text); font-size: 0.95rem; }
+
+  .result-total {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .result-total-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .result-total-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--accent2);
+  }
+
+  .calc-btn {
+    width: 100%;
+    max-width: 600px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 18px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .calc-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .calc-btn:active { transform: translateY(0); }
+
+  .error {
+    color: var(--accent2);
+    font-size: 0.72rem;
+    margin-top: 6px;
+    letter-spacing: 1px;
+    display: none;
+  }
+
+  .error.show { display: block; }
+
+  .ft { font-size: 0.7rem; color: var(--muted); margin-left: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Kötbér<br>Kalkulátor</h1>
+  <p>Szerződéses felmondási díj számítás</p>
+</div>
+
+<!-- DATES -->
+<div class="card">
+  <div class="card-title">01 — Szerződés időszaka</div>
+
+  <div class="two-col">
+    <div class="field">
+      <label>Szerződéskötés dátuma</label>
+      <input type="date" id="startDate" oninput="updateMonths()">
+    </div>
+    <div class="field">
+      <label>Tervezett felmondás dátuma</label>
+      <input type="date" id="endDate" oninput="updateMonths()">
+    </div>
+  </div>
+
+  <div id="monthsDisplay" style="display:none">
+    <div class="months-badge" id="monthsBadge">—</div>
+    <div class="months-label">hónap eltelt (beleszámítva az első és utolsó hónapot)</div>
+  </div>
+  <div class="error" id="dateError">A felmondás dátuma nem lehet 24 hónapnál több!</div>
+</div>
+
+<!-- PACKAGE TYPE -->
+<div class="card">
+  <div class="card-title">02 — Csomag típusa</div>
+  <div class="toggle-group">
+    <button class="toggle-btn" id="btnS" onclick="selectPackage('S')">
+      NORMÁL S<br><span style="font-size:0.7rem;opacity:0.7">2 400 Ft / hó</span>
+    </button>
+    <button class="toggle-btn" id="btnM" onclick="selectPackage('M')">
+      KORLÁTLAN M<br><span style="font-size:0.7rem;opacity:0.7">4 200 Ft / hó</span>
+    </button>
+  </div>
+</div>
+
+<!-- INTERNET -->
+<div class="card">
+  <div class="card-title">03 — Internet csomag</div>
+  <div class="field">
+    <label>Adatcsomag kiválasztása</label>
+    <div class="select-wrapper">
+      <select id="internetSelect" onchange="updateInternetPrice()">
+        <option value="">— Válassz csomagot —</option>
+      </select>
+    </div>
+  </div>
+  <div class="price-row">
+    <span>Kedvezményes díj</span>
+    <span class="price-val" id="internetPriceDisplay">—<span class="ft">Ft</span></span>
+  </div>
+</div>
+
+<!-- FULL PRICES -->
+<div class="card">
+  <div class="card-title">04 — Teljes (nem kedvezményes) díjak</div>
+  <div class="two-col">
+    <div class="field">
+      <label>Hang teljes díj (Ft/hó)</label>
+      <input type="number" id="fullVoice" placeholder="pl. 5900" oninput="clearResult()">
+    </div>
+    <div class="field">
+      <label>Adat teljes díj (Ft/hó)</label>
+      <input type="number" id="fullData" placeholder="pl. 4990" oninput="clearResult()">
+    </div>
+  </div>
+  <div class="price-row" style="margin-top:4px">
+    <span>Kedvezményes hang díj</span>
+    <span class="price-val" id="voicePriceDisplay">—<span class="ft">Ft</span></span>
+  </div>
+</div>
+
+<button class="calc-btn" onclick="calculate()">KÖTBÉR KISZÁMÍTÁSA →</button>
+
+<!-- RESULT -->
+<div class="result-card" id="resultCard">
+  <div class="card-title" style="color:var(--accent2)">Kötbér összesítő</div>
+
+  <div class="result-line">
+    <span class="result-label">Eltelt hónapok</span>
+    <span class="result-value" id="r_months">—</span>
+  </div>
+  <div class="result-line">
+    <span class="result-label">Hang — teljes díj</span>
+    <span class="result-value" id="r_voiceFull">—</span>
+  </div>
+  <div class="result-line">
+    <span class="result-label">Hang — kedvezményes díj</span>
+    <span class="result-value" id="r_voiceDisc">—</span>
+  </div>
+  <div class="result-line">
+    <span class="result-label">Hang különbözet / hó</span>
+    <span class="result-value" id="r_voiceDiff">—</span>
+  </div>
+  <div class="result-line">
+    <span class="result-label">Adat — teljes díj</span>
+    <span class="result-value" id="r_dataFull">—</span>
+  </div>
+  <div class="result-line">
+    <span class="result-label">Adat — kedvezményes díj</span>
+    <span class="result-value" id="r_dataDisc">—</span>
+  </div>
+  <div class="result-line">
+    <span class="result-label">Adat különbözet / hó</span>
+    <span class="result-value" id="r_dataDiff">—</span>
+  </div>
+  <div class="result-line">
+    <span class="result-label">Hang kötbér (× <span id="r_months2">0</span> hó)</span>
+    <span class="result-value" id="r_voicePenalty">—</span>
+  </div>
+  <div class="result-line">
+    <span class="result-label">Adat kötbér (× <span id="r_months3">0</span> hó)</span>
+    <span class="result-value" id="r_dataPenalty">—</span>
+  </div>
+
+  <div class="result-total">
+    <span class="result-total-label">Fizetendő kötbér</span>
+    <span class="result-total-value" id="r_total">0 Ft</span>
+  </div>
+</div>
+
+<script>
+  const internetPackages = [
+    { label: '2 GB',            price: 590 },
+    { label: '7 GB',            price: 1990 },
+    { label: '12 GB',           price: 2790 },
+    { label: '20 GB',           price: 3790 },
+    { label: 'Korlátlan 62 GB', price: 6990 },
+  ];
+
+  const voicePrices = { S: 2400, M: 4200 };
+
+  let selectedPackage = null;
+  let months = 0;
+
+  // Populate internet dropdown on load
+  window.addEventListener('DOMContentLoaded', () => {
+    const sel = document.getElementById('internetSelect');
+    internetPackages.forEach((pkg) => {
+      const opt = document.createElement('option');
+      opt.value = pkg.price;
+      opt.textContent = `${pkg.label} — ${fmt(pkg.price)} Ft`;
+      sel.appendChild(opt);
+    });
+  });
+
+  function updateMonths() {
+    const s = document.getElementById('startDate').value;
+    const e = document.getElementById('endDate').value;
+    const err = document.getElementById('dateError');
+    const disp = document.getElementById('monthsDisplay');
+    const badge = document.getElementById('monthsBadge');
+
+    if (!s || !e) { disp.style.display='none'; err.classList.remove('show'); return; }
+
+    const start = new Date(s);
+    const end = new Date(e);
+
+    if (end < start) { disp.style.display='none'; err.classList.remove('show'); return; }
+
+    // Inclusive month count: months from start to end including both
+    const m = (end.getFullYear() - start.getFullYear()) * 12
+              + (end.getMonth() - start.getMonth()) + 1;
+
+    if (m > 24) {
+      err.classList.add('show');
+      disp.style.display='none';
+      months = 0;
+    } else {
+      err.classList.remove('show');
+      months = m;
+      badge.textContent = m;
+      disp.style.display='block';
+    }
+    clearResult();
+  }
+
+  function selectPackage(type) {
+    selectedPackage = type;
+    document.getElementById('btnS').classList.toggle('active', type === 'S');
+    document.getElementById('btnM').classList.toggle('active', type === 'M');
+
+    const voicePrice = voicePrices[type];
+    document.getElementById('voicePriceDisplay').innerHTML = fmt(voicePrice) + '<span class="ft">Ft</span>';
+
+    // Populate internet dropdown (same for both package types)
+    const sel = document.getElementById('internetSelect');
+    if (sel.options.length <= 1) {
+      internetPackages.forEach((pkg) => {
+        const opt = document.createElement('option');
+        opt.value = pkg.price;
+        opt.textContent = `${pkg.label} — ${fmt(pkg.price)} Ft`;
+        sel.appendChild(opt);
+      });
+    }
+    document.getElementById('internetPriceDisplay').innerHTML = '—<span class="ft">Ft</span>';
+    clearResult();
+  }
+
+  function updateInternetPrice() {
+    const val = document.getElementById('internetSelect').value;
+    const disp = document.getElementById('internetPriceDisplay');
+    if (val) {
+      disp.innerHTML = fmt(parseInt(val)) + '<span class="ft">Ft</span>';
+    } else {
+      disp.innerHTML = '—<span class="ft">Ft</span>';
+    }
+    clearResult();
+  }
+
+  function fmt(n) {
+    return n.toLocaleString('hu-HU');
+  }
+
+  function clearResult() {
+    document.getElementById('resultCard').classList.remove('show');
+  }
+
+  function calculate() {
+    if (!months || months < 1) { alert('Kérlek add meg az érvényes dátumokat!'); return; }
+    if (!selectedPackage) { alert('Kérlek válassz csomagtípust!'); return; }
+    const internetVal = document.getElementById('internetSelect').value;
+    if (!internetVal) { alert('Kérlek válassz internet csomagot!'); return; }
+    const fullVoice = parseFloat(document.getElementById('fullVoice').value);
+    const fullData = parseFloat(document.getElementById('fullData').value);
+    if (!fullVoice || !fullData) { alert('Kérlek add meg a teljes (nem kedvezményes) díjakat!'); return; }
+
+    const discVoice = voicePrices[selectedPackage];
+    const discData = parseInt(internetVal);
+
+    const voiceDiff = fullVoice - discVoice;
+    const dataDiff = fullData - discData;
+
+    const voicePenalty = voiceDiff * months;
+    const dataPenalty = dataDiff * months;
+    const total = voicePenalty + dataPenalty;
+
+    document.getElementById('r_months').textContent = months + ' hónap';
+    document.getElementById('r_months2').textContent = months;
+    document.getElementById('r_months3').textContent = months;
+    document.getElementById('r_voiceFull').textContent = fmt(fullVoice) + ' Ft';
+    document.getElementById('r_voiceDisc').textContent = fmt(discVoice) + ' Ft';
+    document.getElementById('r_voiceDiff').textContent = fmt(voiceDiff) + ' Ft';
+    document.getElementById('r_dataFull').textContent = fmt(fullData) + ' Ft';
+    document.getElementById('r_dataDisc').textContent = fmt(discData) + ' Ft';
+    document.getElementById('r_dataDiff').textContent = fmt(dataDiff) + ' Ft';
+    document.getElementById('r_voicePenalty').textContent = fmt(voicePenalty) + ' Ft';
+    document.getElementById('r_dataPenalty').textContent = fmt(dataPenalty) + ' Ft';
+    document.getElementById('r_total').textContent = fmt(total) + ' Ft';
+
+    const card = document.getElementById('resultCard');
+    card.classList.add('show');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>
